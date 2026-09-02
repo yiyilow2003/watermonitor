@@ -1,2251 +1,523 @@
-<!DOCTYPE html>
 
+
+Index · HTML
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
 <title>WaterMonitor</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
-
-<style>
-
-:root{
-  --ink:#0E1A22;
-  --panel:#13232D;
-  --panel-raised:#172832;
-  --line:#28404C;
-
-  --teal:#1E5F70;
-  --water:#3E9CB8;
-  --water-deep:#2A7690;
-
-  --foam:#ECEFEC;
-  --muted:#8CA3AB;
-
-  --amber:#E4A23B;
-  --critical:#DB5A46;
-
-  --radius:4px;
-}
-
-*{
-  box-sizing:border-box;
-}
-
-html,
-body{
-  margin:0;
-  background:var(--ink);
-  color:var(--foam);
-  font-family:'Space Grotesk',sans-serif;
-  -webkit-font-smoothing:antialiased;
-}
-
-body{
-  min-height:100vh;
-}
-
-.mono{
-  font-family:'IBM Plex Mono',monospace;
-}
-
-a{
-  color:inherit;
-}
-
-.wrap{
-  max-width:1040px;
-  margin:0 auto;
-  padding:28px 20px 64px;
-}
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-header.top{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:16px;
-
-  padding-bottom:22px;
-
-  border-bottom:1px solid var(--line);
-}
-
-header.top h1{
-  font-size:1.5rem;
-  font-weight:700;
-
-  margin:0 0 4px;
-
-  letter-spacing:-0.01em;
-}
-
-header.top p{
-  margin:0;
-
-  color:var(--muted);
-
-  font-size:0.9rem;
-
-  max-width:55ch;
-}
-
-.status-pill{
-  display:flex;
-  align-items:center;
-  gap:8px;
-
-  font-family:'IBM Plex Mono',monospace;
-  font-size:0.78rem;
-
-  color:var(--muted);
-
-  padding:6px 10px;
-
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-
-  white-space:nowrap;
-}
-
-.status-dot{
-  width:7px;
-  height:7px;
-
-  border-radius:50%;
-
-  background:var(--muted);
-}
-
-.status-dot.online{
-  background:var(--water);
-
-  box-shadow:
-    0 0 0 3px rgba(62,156,184,0.18);
-}
-
-.status-dot.offline{
-  background:var(--critical);
-
-  box-shadow:
-    0 0 0 3px rgba(219,90,70,0.18);
-}
-
-/* =========================================================
-   TANK TABS
-========================================================= */
-
-.tank-tabs{
-  display:flex;
-
-  gap:2px;
-
-  margin-top:24px;
-
-  border-bottom:1px solid var(--line);
-}
-
-.tank-tab{
-  background:none;
-  border:none;
-
-  color:var(--muted);
-
-  font-family:'IBM Plex Mono',monospace;
-  font-size:0.82rem;
-
-  padding:10px 14px;
-
-  cursor:pointer;
-
-  border-bottom:2px solid transparent;
-
-  margin-bottom:-1px;
-
-  display:flex;
-  align-items:center;
-
-  gap:7px;
-
-  transition:0.15s ease;
-}
-
-.tank-tab:hover{
-  color:var(--foam);
-}
-
-.tank-tab.active{
-  color:var(--foam);
-
-  border-bottom-color:var(--water);
-}
-
-/* =========================================================
-   HERO
-========================================================= */
-
-.hero{
-  display:grid;
-
-  grid-template-columns:180px 1fr;
-
-  gap:36px;
-
-  align-items:center;
-
-  padding:36px 0 30px;
-}
-
-.tank-svg-wrap{
-  display:flex;
-  justify-content:center;
-}
-
-.readout .level-row{
-  display:flex;
-
-  align-items:baseline;
-
-  gap:10px;
-
-  flex-wrap:wrap;
-}
-
-.readout .level-value{
-  font-size:4rem;
-
-  font-weight:700;
-
-  line-height:1;
-
-  letter-spacing:-0.02em;
-}
-
-.readout .level-value.dim{
-  color:var(--muted);
-}
-
-.readout .level-unit{
-  font-family:'IBM Plex Mono',monospace;
-
-  color:var(--muted);
-
-  font-size:1.1rem;
-}
-
-.readout .state-label{
-  margin-top:10px;
-
-  font-family:'IBM Plex Mono',monospace;
-
-  font-size:0.85rem;
-
-  letter-spacing:0.02em;
-}
-
-.state-label.normal{
-  color:var(--water);
-}
-
-.state-label.low{
-  color:var(--critical);
-}
-
-.readout .meta-row{
-  margin-top:18px;
-
-  display:flex;
-
-  gap:24px;
-
-  flex-wrap:wrap;
-}
-
-.meta-item{
-  font-family:'IBM Plex Mono',monospace;
-
-  font-size:0.78rem;
-
-  color:var(--muted);
-}
-
-.meta-item strong{
-  display:block;
-
-  color:var(--foam);
-
-  font-size:0.92rem;
-
-  margin-top:2px;
-
-  font-weight:500;
-}
-
-/* =========================================================
-   HISTORY
-========================================================= */
-
-section.history{
-  padding-top:8px;
-
-  border-top:1px solid var(--line);
-}
-
-section.history h2{
-  font-size:0.95rem;
-
-  font-weight:600;
-
-  margin:26px 0 4px;
-}
-
-section.history .sub{
-  color:var(--muted);
-
-  font-size:0.82rem;
-
-  margin:0 0 16px;
-}
-
-.chart-panel{
-  background:var(--panel);
-
-  border:1px solid var(--line);
-
-  border-radius:var(--radius);
-
-  padding:18px 16px 14px;
-
-  min-height:280px;
-
-  position:relative;
-}
-
-.chart-container{
-  position:relative;
-
-  height:240px;
-
-  width:100%;
-}
-
-#historyChart{
-  width:100% !important;
-  height:100% !important;
-}
-
-.empty-state{
-  color:var(--muted);
-
-  font-family:'IBM Plex Mono',monospace;
-
-  font-size:0.85rem;
-
-  padding:30px 0;
-
-  text-align:center;
-}
-
-/* =========================================================
-   ALERT SUMMARY
-========================================================= */
-
-.alert-summary{
-  display:flex;
-
-  align-items:center;
-
-  justify-content:space-between;
-
-  gap:15px;
-
-  margin-bottom:12px;
-
-  padding:12px 14px;
-
-  background:var(--panel);
-
-  border:1px solid var(--line);
-
-  border-radius:var(--radius);
-}
-
-.alert-summary-label{
-  color:var(--muted);
-
-  font-family:'IBM Plex Mono',monospace;
-
-  font-size:0.75rem;
-}
-
-.alert-summary-value{
-  color:var(--foam);
-
-  font-family:'IBM Plex Mono',monospace;
-
-  font-size:0.9rem;
-}
-
-.alert-summary-value.has-alert{
-  color:var(--critical);
-}
-
-/* =========================================================
-   ALERT LOG
-========================================================= */
-
-section.log{
-  padding-top:8px;
-}
-
-section.log h2{
-  font-size:0.95rem;
-
-  font-weight:600;
-
-  margin:30px 0 12px;
-}
-
-.alert-table-container{
-  background:var(--panel);
-
-  border:1px solid var(--line);
-
-  border-radius:var(--radius);
-
-  overflow:hidden;
-}
-
-table{
-  width:100%;
-
-  border-collapse:collapse;
-}
-
-th,
-td{
-  text-align:left;
-
-  padding:11px 12px;
-
-  font-family:'IBM Plex Mono',monospace;
-
-  font-size:0.78rem;
-
-  border-bottom:1px solid var(--line);
-}
-
-th{
-  color:var(--muted);
-
-  font-weight:500;
-
-  background:var(--panel-raised);
-}
-
-tbody tr:last-child td{
-  border-bottom:none;
-}
-
-tbody tr:hover{
-  background:rgba(255,255,255,0.025);
-}
-
-td.time-cell{
-  color:var(--muted);
-}
-
-td.level-cell{
-  color:var(--foam);
-
-  font-weight:500;
-}
-
-td.level-cell.low{
-  color:var(--critical);
-}
-
-.alert-badge{
-  display:inline-block;
-
-  padding:3px 7px;
-
-  border:1px solid rgba(219,90,70,0.4);
-
-  color:var(--critical);
-
-  border-radius:3px;
-
-  font-size:0.68rem;
-
-  letter-spacing:0.04em;
-}
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
-footer{
-  margin-top:40px;
-
-  padding-top:16px;
-
-  border-top:1px solid var(--line);
-
-  color:var(--muted);
-
-  font-family:'IBM Plex Mono',monospace;
-
-  font-size:0.74rem;
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width:600px){
-
-  .wrap{
-    padding:20px 15px 50px;
-  }
-
-  header.top{
-    flex-direction:column;
-  }
-
-  .hero{
-    grid-template-columns:1fr;
-
-    gap:22px;
-  }
-
-  .tank-svg-wrap{
-    order:-1;
-  }
-
-  .readout .level-value{
-    font-size:3rem;
-  }
-
-  .chart-container{
-    height:210px;
-  }
-
-  th,
-  td{
-    padding:9px 8px;
-
-    font-size:0.7rem;
-  }
-
-}
-
-@media (prefers-reduced-motion:reduce){
-
-  *{
-    animation-duration:0.001ms !important;
-
-    transition-duration:0.001ms !important;
-  }
-
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="wrap">
-
-<!-- =====================================================
-     HEADER
-===================================================== -->
-
-<header class="top">
-
-  <div>
-
-```
-<h1>WaterMonitor</h1>
-
-<p>
-  Live tank levels from the ultrasonic sensor network.
-  Readings are accepted automatically from the monitoring system.
-</p>
-```
-
-  </div>
-
-  <div class="status-pill">
-
-```
-<span
-  class="status-dot"
-  id="statusDot">
-</span>
-
-<span id="statusText">
-  checking&hellip;
-</span>
-```
-
-  </div>
-
-</header>
-
-<!-- =====================================================
-     TANK TABS
-===================================================== -->
-
-<nav
-  class="tank-tabs"
-  id="tankTabs">
-</nav>
-
-<!-- =====================================================
-     HERO
-===================================================== -->
-
-<section class="hero">
-
-  <div class="tank-svg-wrap">
-
-```
-<svg
-  id="tankSvg"
-  width="140"
-  height="220"
-  viewBox="0 0 140 220">
-
-  <defs>
-
-    <clipPath id="tankClip">
-
-      <rect
-        x="14"
-        y="14"
-        width="112"
-        height="192"
-        rx="4" />
-
-    </clipPath>
-
-    <linearGradient
-      id="waterGrad"
-      x1="0"
-      y1="0"
-      x2="0"
-      y2="1">
-
-      <stop
-        offset="0%"
-        stop-color="var(--water)" />
-
-      <stop
-        offset="100%"
-        stop-color="var(--water-deep)" />
-
-    </linearGradient>
-
-  </defs>
-
-
-  <!-- Tank body -->
-
-  <rect
-    x="14"
-    y="14"
-    width="112"
-    height="192"
-    rx="4"
-    fill="var(--panel-raised)"
-    stroke="var(--line)"
-    stroke-width="2"/>
-
-
-  <!-- Water -->
-
-  <g clip-path="url(#tankClip)">
-
-    <rect
-      id="waterFill"
-      x="14"
-      y="206"
-      width="112"
-      height="0"
-      fill="url(#waterGrad)" />
-
-  </g>
-
-
-  <!-- Warning threshold -->
-
-  <line
-    id="warningLine"
-    x1="10"
-    y1="0"
-    x2="130"
-    y2="0"
-    stroke="var(--amber)"
-    stroke-width="1.5"
-    stroke-dasharray="4 3" />
-
-
-  <!-- Tank outline -->
-
-  <rect
-    x="14"
-    y="14"
-    width="112"
-    height="192"
-    rx="4"
-    fill="none"
-    stroke="var(--line)"
-    stroke-width="2"/>
-
-</svg>
-```
-
-  </div>
-
-  <div class="readout">
-
-```
-<div class="level-row">
-
-  <span
-    class="level-value mono"
-    id="levelValue">
-    &mdash;
-  </span>
-
-  <span class="level-unit">
-    meters
-  </span>
-
-</div>
-
-
-<div
-  class="state-label"
-  id="stateLabel">
-  awaiting first reading
-</div>
-
-
-<div class="meta-row">
-
-  <div class="meta-item">
-
-    last reading
-
-    <strong id="lastReading">
-      &mdash;
-    </strong>
-
-  </div>
-
-
-  <div class="meta-item">
-
-    tank capacity
-
-    <strong id="tankCapacity">
-      &mdash;
-    </strong>
-
-  </div>
-
-
-  <div class="meta-item">
-
-    alert threshold
-
-    <strong id="thresholdVal">
-      &mdash;
-    </strong>
-
-  </div>
-
-</div>
-```
-
-  </div>
-
-</section>
-
-<!-- =====================================================
-     LEVEL HISTORY
-===================================================== -->
-
-<section class="history">
-
-  <h2>
-    Level history
-  </h2>
-
-  <p
-    class="sub"
-    id="historySub">
-
-```
-Accepted water-level readings for this tank.
-```
-
-  </p>
-
-  <div class="chart-panel">
-
-```
-<div
-  class="chart-container"
-  id="chartContainer"
-  style="display:none;">
-
-  <canvas id="historyChart"></canvas>
-
-</div>
-
-
-<div
-  class="empty-state"
-  id="historyEmpty">
-
-  No accepted readings for this tank yet.
-
-</div>
-```
-
-  </div>
-
-</section>
-
-<!-- =====================================================
-     ALERT LOG
-===================================================== -->
-
-<section class="log">
-
-  <h2>
-    Recent alerts
-  </h2>
-
-  <div class="alert-summary">
-
-```
-<span class="alert-summary-label">
-  CURRENT STATUS
-</span>
-
-<span
-  class="alert-summary-value"
-  id="alertSummary">
-
-  No active alert
-
-</span>
-```
-
-  </div>
-
-  <div id="alertsTableWrap">
-
-```
-<div class="empty-state">
-
-  No alerts yet. This fills in when an accepted reading
-  falls below 1.8 m.
-
-</div>
-```
-
-  </div>
-
-</section>
-
-<!-- =====================================================
-     FOOTER
-===================================================== -->
-
-<footer>
-
-self-hosted ·
-no third-party platform ·
-data stored on this server only
-
-</footer>
-
-</div>
-
-<script>
-
-/* =========================================================
-   SYSTEM SETTINGS
-========================================================= */
-
-/*
-   These values MUST match the ESP32 system.
-
-   3.6 m = maximum accepted/displayed water level
-   1.8 m = low-level warning threshold
-*/
-
-const KNOWN_TANKS = [
-  'Tank 1',
-  'Tank 2'
-];
-
-const TANK_HEIGHT_METERS = 3.6;
-
-const WARNING_LEVEL = 1.8;
-
-/*
-   A tank is considered online if its latest
-   accepted reading arrived within the last hour.
-*/
-
-const ONLINE_WINDOW_MS =
-  60 * 60 * 1000;
-
-
-/* =========================================================
-   GLOBAL VARIABLES
-========================================================= */
-
-let currentTank = null;
-
-let chart = null;
-
-
-/* =========================================================
-   NUMBER VALIDATION
-========================================================= */
-
-function validLevel(value){
-
-  const number = Number(value);
-
-  if (!Number.isFinite(number)){
-    return false;
-  }
-
-  /*
-     Accepted range:
-
-     0.00 m
-     to
-     3.60 m
-  */
-
-  return number >= 0 &&
-         number <= TANK_HEIGHT_METERS;
-
-}
-
-
-/* =========================================================
-   FORMAT LEVEL
-========================================================= */
-
-function fmtLevel(value){
-
-  const number = Number(value);
-
-  if (!Number.isFinite(number)){
-    return '--';
-  }
-
-  return number.toFixed(2);
-
-}
-
-
-/* =========================================================
-   FORMAT DATE/TIME
-========================================================= */
-
-function fmtTime(iso){
-
-  const date = new Date(iso);
-
-  if (Number.isNaN(date.getTime())){
-    return '--';
-  }
-
-  return date.toLocaleString(
-    undefined,
-    {
-      year:'numeric',
-      month:'short',
-      day:'numeric',
-      hour:'2-digit',
-      minute:'2-digit',
-      second:'2-digit'
-    }
-  );
-
-}
-
-
-/* =========================================================
-   SHORT DATE/TIME FOR CHART
-========================================================= */
-
-function fmtChartTime(iso){
-
-  const date = new Date(iso);
-
-  if (Number.isNaN(date.getTime())){
-    return '--';
-  }
-
-  return date.toLocaleString(
-    undefined,
-    {
-      month:'short',
-      day:'numeric',
-      hour:'2-digit',
-      minute:'2-digit'
-    }
-  );
-
-}
-
-
-/* =========================================================
-   TIME AGO
-========================================================= */
-
-function timeAgo(iso){
-
-  const date = new Date(iso);
-
-  if (Number.isNaN(date.getTime())){
-    return '--';
-  }
-
-  const diffMs =
-    Date.now() - date.getTime();
-
-  const mins =
-    Math.round(diffMs / 60000);
-
-  if (mins < 1){
-    return 'just now';
-  }
-
-  if (mins < 60){
-    return mins + ' min ago';
-  }
-
-  const hrs =
-    Math.round(mins / 60);
-
-  if (hrs < 24){
-    return hrs + ' hr ago';
-  }
-
-  return Math.round(hrs / 24) + ' d ago';
-
-}
-
-
-/* =========================================================
-   NORMALISE READING
-========================================================= */
-
-/*
-   Converts the server response into a consistent format.
-
-   Expected:
-
-   {
-      tank: "Tank 1",
-      level: 2.75,
-      timestamp: "2026-09-02T09:30:00Z"
-   }
-
-*/
-
-function normaliseReading(reading){
-
-  if (!reading){
-    return null;
-  }
-
-  const level =
-    Number(
-      reading.level ??
-      reading.water_level ??
-      reading.waterLevel
-    );
-
-  const timestamp =
-    reading.timestamp ??
-    reading.created_at ??
-    reading.createdAt ??
-    reading.time;
-
-  if (
-    !validLevel(level) ||
-    !timestamp ||
-    Number.isNaN(new Date(timestamp).getTime())
-  ){
-    return null;
-  }
-
-  return {
-    tank: reading.tank,
-    level: level,
-    timestamp: timestamp
-  };
-
-}
-
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-function setStatus(isOnline){
-
-  const dot =
-    document.getElementById('statusDot');
-
-  const text =
-    document.getElementById('statusText');
-
-  dot.className =
-    'status-dot ' +
-    (isOnline ? 'online' : 'offline');
-
-  text.textContent =
-    isOnline
-      ? 'server online'
-      : 'server offline';
-
-}
-
-
-/* =========================================================
-   TANK VISUAL
-========================================================= */
-
-function renderTankVisual(level){
-
-  if (!validLevel(level)){
-    level = 0;
-  }
-
-  const pct =
-    Math.max(
-      0,
-      Math.min(
-        1,
-        level / TANK_HEIGHT_METERS
-      )
-    );
-
-  const tankPixelHeight = 192;
-
-  const fillHeight =
-    pct * tankPixelHeight;
-
-  const fill =
-    document.getElementById('waterFill');
-
-  fill.setAttribute(
-    'y',
-    206 - fillHeight
-  );
-
-  fill.setAttribute(
-    'height',
-    fillHeight
-  );
-
-
-  /*
-     Warning line
-
-     1.8 / 3.6 = 50%
-
-     Therefore the line is drawn at the
-     halfway point of the tank.
-  */
-
-  const warnPct =
-    WARNING_LEVEL /
-    TANK_HEIGHT_METERS;
-
-  const warnY =
-    206 -
-    (
-      warnPct *
-      tankPixelHeight
-    );
-
-  const warnLine =
-    document.getElementById('warningLine');
-
-  warnLine.setAttribute(
-    'y1',
-    warnY
-  );
-
-  warnLine.setAttribute(
-    'y2',
-    warnY
-  );
-
-}
-
-
-/* =========================================================
-   READOUT
-========================================================= */
-
-function renderReadout(reading){
-
-  document.getElementById(
-    'levelValue'
-  ).textContent =
-    fmtLevel(reading.level);
-
-
-  document.getElementById(
-    'levelValue'
-  ).classList.remove('dim');
-
-
-  document.getElementById(
-    'lastReading'
-  ).textContent =
-    timeAgo(reading.timestamp);
-
-
-  document.getElementById(
-    'tankCapacity'
-  ).textContent =
-    TANK_HEIGHT_METERS.toFixed(1) +
-    ' m';
-
-
-  document.getElementById(
-    'thresholdVal'
-  ).textContent =
-    WARNING_LEVEL.toFixed(1) +
-    ' m';
-
-
-  const stateLabel =
-    document.getElementById('stateLabel');
-
-
-  if (reading.level < WARNING_LEVEL){
-
-    stateLabel.textContent =
-      'below alert threshold';
-
-    stateLabel.className =
-      'state-label low';
-
-  }
-
-  else{
-
-    stateLabel.textContent =
-      'normal';
-
-    stateLabel.className =
-      'state-label normal';
-
-  }
-
-
-  renderTankVisual(
-    reading.level
-  );
-
-
-  const age =
-    Date.now() -
-    new Date(reading.timestamp).getTime();
-
-
-  setStatus(
-    age <= ONLINE_WINDOW_MS
-  );
-
-}
-
-
-/* =========================================================
-   NO DATA
-========================================================= */
-
-function renderNoData(){
-
-  document.getElementById(
-    'levelValue'
-  ).textContent = '—';
-
-
-  document.getElementById(
-    'levelValue'
-  ).classList.add('dim');
-
-
-  document.getElementById(
-    'lastReading'
-  ).textContent = '—';
-
-
-  document.getElementById(
-    'tankCapacity'
-  ).textContent =
-    TANK_HEIGHT_METERS.toFixed(1) +
-    ' m';
-
-
-  document.getElementById(
-    'thresholdVal'
-  ).textContent =
-    WARNING_LEVEL.toFixed(1) +
-    ' m';
-
-
-  const stateLabel =
-    document.getElementById('stateLabel');
-
-
-  stateLabel.textContent =
-    'no readings yet';
-
-  stateLabel.className =
-    'state-label';
-
-
-  renderTankVisual(0);
-
-  setStatus(false);
-
-
-  document.getElementById(
-    'chartContainer'
-  ).style.display = 'none';
-
-
-  document.getElementById(
-    'historyEmpty'
-  ).style.display = 'block';
-
-
-  document.getElementById(
-    'historyEmpty'
-  ).textContent =
-    'No accepted readings for this tank yet.';
-
-
-  document.getElementById(
-    'historySub'
-  ).textContent =
-    'Accepted readings will appear automatically.';
-
-
-  document.getElementById(
-    'alertsTableWrap'
-  ).innerHTML =
-    `
-    <div class="empty-state">
-      No alerts yet. This fills in when an
-      accepted reading falls below
-      ${WARNING_LEVEL.toFixed(1)} m.
-    </div>
-    `;
-
-
-  document.getElementById(
-    'alertSummary'
-  ).textContent =
-    'No active alert';
-
-  document.getElementById(
-    'alertSummary'
-  ).className =
-    'alert-summary-value';
-
-}
-
-
-/* =========================================================
-   TANK TABS
-========================================================= */
-
-function renderTabs(allTanks){
-
-  const nav =
-    document.getElementById('tankTabs');
-
-  nav.style.display =
-    allTanks.length > 1
-      ? 'flex'
-      : 'none';
-
-  nav.innerHTML = '';
-
-
-  allTanks.forEach(
-    (tank) => {
-
-      const button =
-        document.createElement('button');
-
-      button.className =
-        'tank-tab' +
-        (
-          tank === currentTank
-            ? ' active'
-            : ''
-        );
-
-
-      button.textContent =
-        tank;
-
-
-      button.onclick = () => {
-
-        currentTank = tank;
-
-        loadAll();
-
-      };
-
-
-      nav.appendChild(button);
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   HISTORY CHART
-========================================================= */
-
-function renderChart(readings){
-
-  const chartContainer =
-    document.getElementById(
-      'chartContainer'
-    );
-
-  const empty =
-    document.getElementById(
-      'historyEmpty'
-    );
-
-
-  if (!readings.length){
-
-    chartContainer.style.display =
-      'none';
-
-    empty.style.display =
-      'block';
-
-    return;
-
-  }
-
-
-  chartContainer.style.display =
-    'block';
-
-  empty.style.display =
-    'none';
-
-
-  /*
-     Sort readings from oldest
-     to newest.
-  */
-
-  const sorted =
-    [...readings].sort(
-      (a,b) =>
-        new Date(a.timestamp) -
-        new Date(b.timestamp)
-    );
-
-
-  const labels =
-    sorted.map(
-      reading =>
-        fmtChartTime(
-          reading.timestamp
-        )
-    );
-
-
-  const data =
-    sorted.map(
-      reading =>
-        reading.level
-    );
-
-
-  /*
-     Warning line at 1.8 m.
-  */
-
-  const warningData =
-    sorted.map(
-      () =>
-        WARNING_LEVEL
-    );
-
-
-  if (chart){
-    chart.destroy();
-  }
-
-
-  const ctx =
-    document
-      .getElementById('historyChart')
-      .getContext('2d');
-
-
-  chart =
-    new Chart(
-      ctx,
-      {
-
-        type:'line',
-
-        data:{
-
-          labels:labels,
-
-          datasets:[
-
-            {
-
-              label:'Water Level',
-
-              data:data,
-
-              borderColor:'#3E9CB8',
-
-              backgroundColor:
-                'rgba(62,156,184,0.12)',
-
-              borderWidth:2,
-
-              pointRadius:3,
-
-              pointHoverRadius:6,
-
-              tension:0.25,
-
-              fill:true
-
-            },
-
-            {
-
-              label:'Warning Level',
-
-              data:warningData,
-
-              borderColor:'#E4A23B',
-
-              borderWidth:1.5,
-
-              borderDash:[
-                6,
-                5
-              ],
-
-              pointRadius:0,
-
-              tension:0,
-
-              fill:false
-
-            }
-
-          ]
-
-        },
-
-
-        options:{
-
-          responsive:true,
-
-          maintainAspectRatio:false,
-
-
-          interaction:{
-
-            intersect:false,
-
-            mode:'index'
-
-          },
-
-
-          plugins:{
-
-            legend:{
-
-              display:true,
-
-              labels:{
-
-                color:'#8CA3AB',
-
-                font:{
-
-                  family:
-                    'IBM Plex Mono',
-
-                  size:10
-
-                }
-
-              }
-
-            },
-
-
-            tooltip:{
-
-              callbacks:{
-
-                title:function(
-                  tooltipItems
-                ){
-
-                  const index =
-                    tooltipItems[0].dataIndex;
-
-                  return fmtTime(
-                    sorted[index].timestamp
-                  );
-
-                },
-
-
-                label:function(
-                  context
-                ){
-
-                  if (
-                    context.datasetIndex === 1
-                  ){
-
-                    return ' Warning: ' +
-                      WARNING_LEVEL.toFixed(2) +
-                      ' m';
-
-                  }
-
-                  return ' Level: ' +
-                    Number(
-                      context.raw
-                    ).toFixed(2) +
-                    ' m';
-
-                }
-
-              }
-
-            }
-
-          },
-
-
-          scales:{
-
-            x:{
-
-              ticks:{
-
-                color:'#8CA3AB',
-
-                maxTicksLimit:6,
-
-                font:{
-
-                  family:
-                    'IBM Plex Mono',
-
-                  size:10
-
-                }
-
-              },
-
-              grid:{
-
-                color:'#28404C'
-
-              }
-
-            },
-
-
-            y:{
-
-              min:0,
-
-              max:TANK_HEIGHT_METERS,
-
-              ticks:{
-
-                color:'#8CA3AB',
-
-                font:{
-
-                  family:
-                    'IBM Plex Mono',
-
-                  size:10
-
-                },
-
-                callback:function(value){
-
-                  return value.toFixed(1) +
-                    ' m';
-
-                }
-
-              },
-
-              grid:{
-
-                color:'#28404C'
-
-              }
-
-            }
-
-          }
-
-        }
-
-      }
-    );
-
-}
-
-
-/* =========================================================
-   ALERT LOG
-========================================================= */
-
-function renderAlerts(readings){
-
-  const wrap =
-    document.getElementById(
-      'alertsTableWrap'
-    );
-
-
-  /*
-     Only accepted readings
-     below 1.8 m are alerts.
-  */
-
-  const alerts =
-    readings
-      .filter(
-        reading =>
-          reading.level <
-          WARNING_LEVEL
-      )
-      .sort(
-        (a,b) =>
-          new Date(b.timestamp) -
-          new Date(a.timestamp)
-      )
-      .slice(0,15);
-
-
-  /*
-     Current alert status
-     is based on the newest reading.
-  */
-
-  const latest =
-    readings.length
-      ? [...readings].sort(
-          (a,b) =>
-            new Date(b.timestamp) -
-            new Date(a.timestamp)
-        )[0]
-      : null;
-
-
-  const summary =
-    document.getElementById(
-      'alertSummary'
-    );
-
-
-  if (
-    latest &&
-    latest.level < WARNING_LEVEL
-  ){
-
-    summary.textContent =
-      'LOW LEVEL — ' +
-      fmtLevel(latest.level) +
-      ' m';
-
-    summary.className =
-      'alert-summary-value has-alert';
-
-  }
-
-  else{
-
-    summary.textContent =
-      'No active alert';
-
-    summary.className =
-      'alert-summary-value';
-
-  }
-
-
-  /*
-     No alert history.
-  */
-
-  if (!alerts.length){
-
-    wrap.innerHTML =
-      `
-      <div class="empty-state">
-        No alerts recorded.
-        Water level has remained at or above
-        ${WARNING_LEVEL.toFixed(1)} m.
-      </div>
-      `;
-
-    return;
-
-  }
-
-
-  /*
-     Create alert table.
-  */
-
-  const rows =
-    alerts.map(
-      reading =>
-        `
-        <tr>
-
-          <td class="time-cell">
-            ${fmtTime(
-              reading.timestamp
-            )}
-          </td>
-
-          <td class="level-cell low">
-            ${fmtLevel(
-              reading.level
-            )} m
-          </td>
-
-          <td>
-            <span class="alert-badge">
-              LOW LEVEL
-            </span>
-          </td>
-
-        </tr>
-        `
-    ).join('');
-
-
-  wrap.innerHTML =
-    `
-    <div class="alert-table-container">
-
-      <table>
-
-        <thead>
-
-          <tr>
-
-            <th>
-              Time
-            </th>
-
-            <th>
-              Level
-            </th>
-
-            <th>
-              Status
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          ${rows}
-
-        </tbody>
-
-      </table>
-
-    </div>
-    `;
-
-}
-
-
-/* =========================================================
-   LOAD DATA
-========================================================= */
-
-async function loadAll(){
-
-  try{
-
-    /*
-       STEP 1
-       Get tanks that have reported.
-    */
-
-    const tanksRes =
-      await fetch(
-        '/api/tanks',
-        {
-          cache:'no-store'
-        }
-      );
-
-
-    if (!tanksRes.ok){
-
-      throw new Error(
-        'Unable to load tank list'
-      );
-
-    }
-
-
-    const reportedTanks =
-      await tanksRes.json();
-
-
-    /*
-       Make sure response is an array.
-    */
-
-    if (
-      !Array.isArray(
-        reportedTanks
-      )
-    ){
-
-      throw new Error(
-        'Invalid tank list response'
-      );
-
-    }
-
-
-    /*
-       Always show Tank 1 and Tank 2.
-
-       Also include any future tank
-       that has reported.
-    */
-
-    const extra =
-      reportedTanks.filter(
-        tank =>
-          !KNOWN_TANKS.includes(tank)
-      );
-
-
-    const allTanks =
-      [
-        ...KNOWN_TANKS,
-        ...extra
-      ];
-
-
-    /*
-       Select first tank automatically.
-    */
-
-    if (
-      !currentTank ||
-      !allTanks.includes(
-        currentTank
-      )
-    ){
-
-      currentTank =
-        allTanks[0];
-
-    }
-
-
-    renderTabs(allTanks);
-
-
-    /*
-       If selected tank has never
-       sent a reading.
-    */
-
-    if (
-      !reportedTanks.includes(
-        currentTank
-      )
-    ){
-
-      renderNoData();
-
-      return;
-
-    }
-
-
-    /*
-       STEP 2
-       Get history for selected tank.
-    */
-
-    const historyRes =
-      await fetch(
-        '/api/readings?tank=' +
-        encodeURIComponent(
-          currentTank
-        ) +
-        '&limit=200',
-        {
-          cache:'no-store'
-        }
-      );
-
-
-    if (!historyRes.ok){
-
-      throw new Error(
-        'Unable to load readings'
-      );
-
-    }
-
-
-    const rawHistory =
-      await historyRes.json();
-
-
-    /*
-       Support either:
-
-       [
-         {...},
-         {...}
-       ]
-
-       OR
-
-       {
-         readings:[...]
-       }
-    */
-
-    const source =
-      Array.isArray(rawHistory)
-        ? rawHistory
-        : (
-            Array.isArray(
-              rawHistory.readings
-            )
-              ? rawHistory.readings
-              : []
-          );
-
-
-    /*
-       Convert and validate readings.
-
-       Invalid signals/readings are
-       ignored instead of breaking
-       the graph.
-    */
-
-    const history =
-      source
-        .map(
-          normaliseReading
-        )
-        .filter(
-          reading =>
-            reading !== null
-        );
-
-
-    /*
-       If nothing valid remains.
-    */
-
-    if (!history.length){
-
-      renderNoData();
-
-      return;
-
-    }
-
-
-    /*
-       Sort chronologically.
-    */
-
-    history.sort(
-      (a,b) =>
-        new Date(a.timestamp) -
-        new Date(b.timestamp)
-    );
-
-
-    /*
-       Latest accepted reading.
-    */
-
-    const latest =
-      history[
-        history.length - 1
-      ];
-
-
-    /*
-       Render main level.
-    */
-
-    renderReadout(
-      latest
-    );
-
-
-    /*
-       Render history chart.
-    */
-
-    renderChart(
-      history
-    );
-
-
-    /*
-       Render alert history.
-    */
-
-    renderAlerts(
-      history
-    );
-
-
-  }
-
-  catch(error){
-
-    console.error(
-      'WaterMonitor error:',
-      error
-    );
-
-
-    /*
-       If the server/API itself
-       cannot be reached.
-    */
-
-    setStatus(false);
-
-
-    document.getElementById(
-      'historySub'
-    ).textContent =
-      'Unable to retrieve accepted readings from the server.';
-
-
-    document.getElementById(
-      'historyEmpty'
-    ).textContent =
-      'Unable to load level history.';
-
-
-    document.getElementById(
-      'historyEmpty'
-    ).style.display =
-      'block';
-
-
-    document.getElementById(
-      'chartContainer'
-    ).style.display =
-      'none';
-
-  }
-
-}
-
-
-/* =========================================================
-   INITIAL LOAD
-========================================================= */
-
-loadAll();
-
-
-/*
-   Check for new ESP32 readings
-   every minute.
-
-   ESP32 may send every 30 minutes,
-   so the website will normally show
-   the new reading within one minute.
-*/
-
-setInterval(
-  loadAll,
-  60 * 1000
-);
-
-</script>
-
-</body>
-</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script> 
+<style> 
+  :root{ 
+    --ink:#0E1A22; 
+    --panel:#13232D; 
+    --panel-raised:#172832; 
+    --line:#28404C; 
+    --teal:#1E5F70; 
+    --water:#3E9CB8; 
+    --water-deep:#2A7690; 
+    --foam:#ECEFEC; 
+    --muted:#8CA3AB; 
+    --amber:#E4A23B; 
+    --critical:#DB5A46; 
+    --radius:3px; 
+  } 
+  
+  *{ box-sizing:border-box; } 
+  
+  html,body{ 
+    margin:0; 
+    background:var(--ink); 
+    color:var(--foam); 
+    font-family:'Space Grotesk', sans-serif; 
+    -webkit-font-smoothing:antialiased; 
+  } 
+  
+  .mono{ font-family:'IBM Plex Mono', monospace; } 
+  
+  a{ color:inherit; } 
+  
+  .wrap{ 
+    max-width:1040px; 
+    margin:0 auto; 
+    padding:28px 20px 64px; 
+  } 
+  
+  header.top{ 
+    display:flex; 
+    align-items:flex-start; 
+    justify-content:space-between; 
+    gap:16px; 
+    padding-bottom:22px; 
+    border-bottom:1px solid var(--line); 
+  } 
+  
+  header.top h1{ 
+    font-size:1.5rem; 
+    font-weight:700; 
+    margin:0 0 4px; 
+    letter-spacing:-0.01em; 
+  } 
+  
+  header.top p{ 
+    margin:0; 
+    color:var(--muted); 
+    font-size:0.9rem; 
+    max-width:46ch; 
+  } 
+  
+  .status-pill{ 
+    display:flex; 
+    align-items:center; 
+    gap:8px; 
+    font-family:'IBM Plex Mono', monospace; 
+    font-size:0.78rem; 
+    color:var(--muted); 
+    padding:6px 10px; 
+    border:1px solid var(--line); 
+    border-radius:var(--radius); 
+    white-space:nowrap; 
+  } 
+  
+  .status-dot{ 
+    width:7px; 
+    height:7px; 
+    border-radius:50%; 
+    background:var(--muted); 
+  } 
+  .status-dot.online{ background:var(--water); box-shadow:0 0 0 3px rgba(62,156,184,0.18); } 
+  .status-dot.offline{ background:var(--critical); box-shadow:0 0 0 3px rgba(219,90,70,0.18); } 
+  
+  /* --- tank tabs --- */ 
+  .tank-tabs{ 
+    display:flex; 
+    gap:2px; 
+    margin-top:24px; 
+    border-bottom:1px solid var(--line); 
+  } 
+  .tank-tab{ 
+    background:none; 
+    border:none; 
+    color:var(--muted); 
+    font-family:'IBM Plex Mono', monospace; 
+    font-size:0.82rem; 
+    padding:10px 14px; 
+    cursor:pointer; 
+    border-bottom:2px solid transparent; 
+    margin-bottom:-1px; 
+    display:flex; 
+    align-items:center; 
+    gap:7px; 
+  } 
+  .tank-tab.active{ color:var(--foam); border-bottom-color:var(--water); } 
+  
+  /* --- hero: tank visual + big readout --- */ 
+  .hero{ 
+    display:grid; 
+    grid-template-columns:180px 1fr; 
+    gap:36px; 
+    align-items:center; 
+    padding:36px 0 30px; 
+  } 
+  
+  .tank-svg-wrap{ display:flex; justify-content:center; } 
+  
+  .readout .level-row{ 
+    display:flex; 
+    align-items:baseline; 
+    gap:10px; 
+    flex-wrap:wrap; 
+  } 
+  
+  .readout .level-value{ 
+    font-size:4rem; 
+    font-weight:700; 
+    line-height:1; 
+    letter-spacing:-0.02em; 
+  } 
+  
+  .readout .level-value.dim{ color:var(--muted); } 
+  
+  .readout .level-unit{ 
+    font-family:'IBM Plex Mono', monospace; 
+    color:var(--muted); 
+    font-size:1.1rem; 
+  } 
+  
+  .readout .state-label{ 
+    margin-top:10px; 
+    font-family:'IBM Plex Mono', monospace; 
+    font-size:0.85rem; 
+    letter-spacing:0.02em; 
+  } 
+  .state-label.normal{ color:var(--water); } 
+  .state-label.low{ color:var(--critical); } 
+  
+  .readout .meta-row{ 
+    margin-top:18px; 
+    display:flex; 
+    gap:24px; 
+    flex-wrap:wrap; 
+  } 
+  .meta-item{ font-family:'IBM Plex Mono', monospace; font-size:0.78rem; color:var(--muted); } 
+  .meta-item strong{ display:block; color:var(--foam); font-size:0.92rem; margin-top:2px; font-weight:500; } 
+  
+  /* --- history section --- */ 
+  section.history{ padding-top:8px; border-top:1px solid var(--line); } 
+  section.history h2{ 
+    font-size:0.95rem; 
+    font-weight:600; 
+    margin:26px 0 4px; 
+  } 
+  section.history .sub{ 
+    color:var(--muted); 
+    font-size:0.82rem; 
+    margin:0 0 16px; 
+  } 
+  .chart-panel{ 
+    background:var(--panel); 
+    border:1px solid var(--line); 
+    border-radius:var(--radius); 
+    padding:18px 16px 8px; 
+  } 
+  
+  /* --- recent alerts table --- */ 
+  section.log{ padding-top:8px; } 
+  section.log h2{ font-size:0.95rem; font-weight:600; margin:30px 0 12px; } 
+  table{ width:100%; border-collapse:collapse; } 
+  th, td{ 
+    text-align:left; 
+    padding:9px 10px; 
+    font-family:'IBM Plex Mono', monospace; 
+    font-size:0.8rem; 
+    border-bottom:1px solid var(--line); 
+  } 
+  th{ color:var(--muted); font-weight:500; } 
+  td.level-cell{ color:var(--foam); } 
+  td.level-cell.low{ color:var(--critical); } 
+  
+  .empty-state{ 
+    color:var(--muted); 
+    font-family:'IBM Plex Mono', monospace; 
+    font-size:0.85rem; 
+    padding:30px 0; 
+  } 
+  
+  footer{ 
+    margin-top:40px; 
+    padding-top:16px; 
+    border-top:1px solid var(--line); 
+    color:var(--muted); 
+    font-family:'IBM Plex Mono', monospace; 
+    font-size:0.74rem; 
+  } 
+  
+  @media (max-width:600px){ 
+    .hero{ grid-template-columns:1fr; gap:22px; } 
+    .tank-svg-wrap{ order:-1; } 
+    .readout .level-value{ font-size:3rem; } 
+  } 
+  
+  @media (prefers-reduced-motion: reduce){ 
+    * { animation-duration:0.001ms !important; transition-duration:0.001ms !important; } 
+  } 
+</style> 
+</head> 
+<body> 
+  
+<div class="wrap"> 
+  
+  <header class="top"> 
+    <div> 
+      <h1>WaterMonitor</h1> 
+      <p>Live tank levels from the ultrasonic sensor network. Updates every 30 minutes.</p> 
+    </div> 
+    <div class="status-pill"> 
+      <span class="status-dot" id="statusDot"></span> 
+      <span id="statusText">checking&hellip;</span> 
+    </div> 
+  </header> 
+  
+  <nav class="tank-tabs" id="tankTabs"></nav> 
+  
+  <section class="hero"> 
+    <div class="tank-svg-wrap"> 
+      <svg id="tankSvg" width="140" height="220" viewBox="0 0 140 220"> 
+        <defs> 
+          <clipPath id="tankClip"> 
+            <rect x="14" y="14" width="112" height="192" rx="4" /> 
+          </clipPath> 
+          <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1"> 
+            <stop offset="0%" stop-color="var(--water)" /> 
+            <stop offset="100%" stop-color="var(--water-deep)" /> 
+          </linearGradient> 
+        </defs> 
+        <!-- tank body outline --> 
+        <rect x="14" y="14" width="112" height="192" rx="4" fill="var(--panel-raised)" stroke="var(--line)" stroke-width="2"/> 
+        <!-- water fill, height set by JS --> 
+        <g clip-path="url(#tankClip)"> 
+          <rect id="waterFill" x="14" y="206" width="112" height="0" fill="url(#waterGrad)" /> 
+        </g> 
+        <!-- warning threshold line --> 
+        <line id="warningLine" x1="10" y1="0" x2="130" y2="0" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="4 3" /> 
+        <!-- re-draw outline on top so fill doesn't bleed over the border --> 
+        <rect x="14" y="14" width="112" height="192" rx="4" fill="none" stroke="var(--line)" stroke-width="2"/> 
+      </svg> 
+    </div> 
+  
+    <div class="readout"> 
+      <div class="level-row"> 
+        <span class="level-value mono" id="levelValue">&mdash;</span> 
+        <span class="level-unit">meters</span> 
+      </div> 
+      <div class="state-label" id="stateLabel">awaiting first reading</div> 
+  
+      <div class="meta-row"> 
+        <div class="meta-item">last reading<strong id="lastReading">&mdash;</strong></div> 
+        <div class="meta-item">tank capacity<strong id="tankCapacity">&mdash;</strong></div> 
+        <div class="meta-item">alert threshold<strong id="thresholdVal">&mdash;</strong></div> 
+      </div> 
+    </div> 
+  </section> 
+  
+  <section class="history"> 
+    <h2>Level history</h2> 
+    <p class="sub" id="historySub">Updates automatically as new readings come in.</p> 
+    <div class="chart-panel"> 
+      <canvas id="historyChart" height="90" style="display:none;"></canvas> 
+      <div class="empty-state" id="historyEmpty">No data for this tank yet.</div> 
+    </div> 
+  </section> 
+  
+  <section class="log"> 
+    <h2>Recent alerts</h2> 
+    <div id="alertsTableWrap"> 
+      <div class="empty-state">No alerts yet. This fills in when a reading comes in below the alert threshold.</div> 
+    </div> 
+  </section> 
+  
+  <footer> 
+    self-hosted &middot; no third-party platform &middot; data stored on this server only 
+  </footer> 
+  
+</div> 
+  
+<script> 
+  // Tanks that always show up as tabs, even before their firmware has sent 
+  // a single reading. Add more names here if you bring on a third tank later. 
+  const KNOWN_TANKS = ['Tank 1', 'Tank 2']; 
+  
+  // Match these to the constants in the ESP32 firmware 
+  const TANK_HEIGHT_METERS = 3.6;   // MAX_DISPLAY_LEVEL 
+  const WARNING_LEVEL = 1.8;        // WARNING_LEVEL 
+  const ONLINE_WINDOW_MS = 60 * 60 * 1000; // "server online" if a reading arrived within this window 
+  
+  let currentTank = null; 
+  let chart = null; 
+  
+  function fmtLevel(v){ return v.toFixed(2); } 
+  
+  function fmtTime(iso){ 
+    const d = new Date(iso); 
+    return d.toLocaleString(undefined, { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }); 
+  } 
+  
+  function timeAgo(iso){ 
+    const diffMs = Date.now() - new Date(iso).getTime(); 
+    const mins = Math.round(diffMs / 60000); 
+    if (mins < 1) return 'just now'; 
+    if (mins < 60) return mins + ' min ago'; 
+    const hrs = Math.round(mins / 60); 
+    if (hrs < 24) return hrs + ' hr ago'; 
+    return Math.round(hrs / 24) + ' d ago'; 
+  } 
+  
+  // Two states only: online (a reading arrived within the last hour) or 
+  // offline. A tank that has never reported is just offline, same as one 
+  // that's gone quiet. 
+  function setStatus(isOnline){ 
+    const dot = document.getElementById('statusDot'); 
+    dot.className = 'status-dot ' + (isOnline ? 'online' : 'offline'); 
+    document.getElementById('statusText').textContent = isOnline ? 'server online' : 'server offline'; 
+  } 
+  
+  function renderTankVisual(level){ 
+    const pct = Math.max(0, Math.min(1, level / TANK_HEIGHT_METERS)); 
+    const tankPixelHeight = 192; 
+    const fillHeight = pct * tankPixelHeight; 
+    const fill = document.getElementById('waterFill'); 
+    fill.setAttribute('y', 206 - fillHeight); 
+    fill.setAttribute('height', fillHeight); 
+  
+    const warnPct = WARNING_LEVEL / TANK_HEIGHT_METERS; 
+    const warnY = 206 - (warnPct * tankPixelHeight); 
+    const warnLine = document.getElementById('warningLine'); 
+    warnLine.setAttribute('y1', warnY); 
+    warnLine.setAttribute('y2', warnY); 
+  } 
+  
+  function renderReadout(reading){ 
+    document.getElementById('levelValue').textContent = fmtLevel(reading.level); 
+    document.getElementById('levelValue').classList.remove('dim'); 
+    document.getElementById('lastReading').textContent = timeAgo(reading.timestamp); 
+    document.getElementById('tankCapacity').textContent = TANK_HEIGHT_METERS.toFixed(1) + ' m'; 
+    document.getElementById('thresholdVal').textContent = WARNING_LEVEL.toFixed(1) + ' m'; 
+  
+    const stateLabel = document.getElementById('stateLabel'); 
+    if (reading.level < WARNING_LEVEL) { 
+      stateLabel.textContent = 'below alert threshold'; 
+      stateLabel.className = 'state-label low'; 
+    } else { 
+      stateLabel.textContent = 'normal'; 
+      stateLabel.className = 'state-label normal'; 
+    } 
+  
+    renderTankVisual(reading.level); 
+  
+    const age = Date.now() - new Date(reading.timestamp).getTime(); 
+    setStatus(age <= ONLINE_WINDOW_MS); 
+  } 
+  
+  // Shown for a tank that has no data yet (e.g. Tank 2 before its firmware 
+  // starts sending) — same "offline" treatment as a tank that's gone quiet. 
+  function renderNoData(){ 
+    document.getElementById('levelValue').textContent = '\u2014'; 
+    document.getElementById('levelValue').classList.add('dim'); 
+    document.getElementById('lastReading').textContent = '\u2014'; 
+    document.getElementById('tankCapacity').textContent = TANK_HEIGHT_METERS.toFixed(1) + ' m'; 
+    document.getElementById('thresholdVal').textContent = WARNING_LEVEL.toFixed(1) + ' m'; 
+  
+    const stateLabel = document.getElementById('stateLabel'); 
+    stateLabel.textContent = 'no readings yet'; 
+    stateLabel.className = 'state-label'; 
+  
+    renderTankVisual(0); 
+    setStatus(false); 
+  
+    document.getElementById('historyChart').style.display = 'none'; 
+    document.getElementById('historyEmpty').style.display = 'block'; 
+    document.getElementById('historyEmpty').textContent = 'No data for this tank yet.'; 
+    document.getElementById('historySub').textContent = 'Updates automatically as new readings come in.'; 
+  
+    document.getElementById('alertsTableWrap').innerHTML = 
+      '<div class="empty-state">No alerts yet. This fills in when a reading comes in below the alert threshold.</div>'; 
+  } 
+  
+  function renderTabs(allTanks){ 
+    const nav = document.getElementById('tankTabs'); 
+    nav.style.display = allTanks.length > 1 ? 'flex' : 'none'; 
+    nav.innerHTML = ''; 
+    allTanks.forEach((t) => { 
+      const btn = document.createElement('button'); 
+      btn.className = 'tank-tab' + (t === currentTank ? ' active' : ''); 
+      btn.textContent = t; 
+      btn.onclick = () => { currentTank = t; loadAll(); }; 
+      nav.appendChild(btn); 
+    }); 
+  } 
+  
+  function renderChart(readings){ 
+    document.getElementById('historyChart').style.display = 'block'; 
+    document.getElementById('historyEmpty').style.display = 'none'; 
+    document.getElementById('historySub').textContent = 'Updates automatically as new readings come in.'; 
+  
+    const labels = readings.map(r => fmtTime(r.timestamp)); 
+    const data = readings.map(r => r.level); 
+  
+    if (chart) { chart.destroy(); } 
+    const ctx = document.getElementById('historyChart').getContext('2d'); 
+    chart = new Chart(ctx, { 
+      type: 'line', 
+      data: { 
+        labels, 
+        datasets: [{ 
+          data, 
+          borderColor: '#3E9CB8', 
+          backgroundColor: 'rgba(62,156,184,0.12)', 
+          borderWidth: 2, 
+          pointRadius: 0, 
+          tension: 0.25, 
+          fill: true, 
+        }] 
+      }, 
+      options: { 
+        responsive: true, 
+        plugins: { legend: { display: false } }, 
+        scales: { 
+          x: { ticks: { color: '#8CA3AB', maxTicksLimit: 6, font: { family: 'IBM Plex Mono', size: 10 } }, grid: { color: '#28404C' } }, 
+          y: { min: 0, max: TANK_HEIGHT_METERS, ticks: { color: '#8CA3AB', font: { family: 'IBM Plex Mono', size: 10 } }, grid: { color: '#28404C' } } 
+        } 
+      } 
+    }); 
+  } 
+  
+  // Only shows readings that were below the alert threshold — an alert log, not a full history log. 
+  function renderAlerts(readings){ 
+    const wrap = document.getElementById('alertsTableWrap'); 
+    const alerts = readings.filter(r => r.level < WARNING_LEVEL).slice(-15).reverse(); 
+  
+    if (!alerts.length) { 
+      wrap.innerHTML = `<div class="empty-state">No alerts &mdash; level has stayed at or above ${WARNING_LEVEL.toFixed(1)} m.</div>`; 
+      return; 
+    } 
+  
+    const rows = alerts.map(r => ` 
+      <tr> 
+        <td>${fmtTime(r.timestamp)}</td> 
+        <td class="level-cell low">${fmtLevel(r.level)} m</td> 
+      </tr> 
+    `).join(''); 
+    wrap.innerHTML = ` 
+      <table> 
+        <thead><tr><th>Time</th><th>Level</th></tr></thead> 
+        <tbody>${rows}</tbody> 
+      </table> 
+    `; 
+  } 
+  
+  async function loadAll(){ 
+    try { 
+      const tanksRes = await fetch('/api/tanks'); 
+      const reportedTanks = await tanksRes.json(); 
+  
+      // Always show every known tank as a tab, plus any extra tank names 
+      // that have reported but aren't in KNOWN_TANKS (e.g. a future Tank 3). 
+      const extra = reportedTanks.filter(t => !KNOWN_TANKS.includes(t)); 
+      const allTanks = [...KNOWN_TANKS, ...extra]; 
+  
+      if (!currentTank || !allTanks.includes(currentTank)) currentTank = allTanks[0]; 
+      renderTabs(allTanks); 
+  
+      if (!reportedTanks.includes(currentTank)) { 
+        renderNoData(); 
+        return; 
+      } 
+  
+      const historyRes = await fetch('/api/readings?tank=' + encodeURIComponent(currentTank) + '&limit=200'); 
+      const history = await historyRes.json(); 
+  
+      if (!history.length) { 
+        renderNoData(); 
+        return; 
+      } 
+  
+      renderReadout(history[history.length - 1]); 
+      renderChart(history); 
+      renderAlerts(history); 
+    } catch (err) { 
+      console.error(err); 
+      setStatus(false); 
+    } 
+  } 
+  
+  loadAll(); 
+  setInterval(loadAll, 60 * 1000); // poll every minute so new readings (every 30 min) show up promptly 
+</script> 
+  
+</body> 
+</html> 
+ (fix this html coding so that the level history and alert log works nicely follow the signal accepted
