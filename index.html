@@ -6,7 +6,7 @@
 <title>AquaMonitor - Water Level System</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#f8f9fb;--ink:#0f172a;--mute:#94a3b8;--sub:#64748b;--line:#e5e9f0;--ok:#059669;--okbg:#e8faf2;--warn:#d97706;--low:#dc2626}
+:root{--bg:#f8f9fb;--ink:#0f172a;--mute:#94a3b8;--sub:#64748b;--line:#e5e9f0;--ok:#059669;--okbg:#e8faf2;--warn:#b45309;--warnbg:#fff7e0;--low:#dc2626;--lowbg:#fdecec}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 Inter,"Segoe UI",system-ui,sans-serif}
 svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -17,7 +17,7 @@ header{background:#fff;border-bottom:1px solid var(--line);padding:14px 20px}
 .brand b{font-size:18px;display:block}.brand span{color:var(--mute);font-size:13px}
 .right{display:flex;align-items:center;gap:12px}
 .live{background:var(--okbg);color:var(--ok);font-weight:600;font-size:13px;padding:6px 14px;border-radius:99px}
-.live.off{background:#fdecec;color:var(--low)}
+.live.off{background:var(--lowbg);color:var(--low)}
 .live:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor;margin-right:8px}
 .btn{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 18px;font:inherit;font-weight:500;cursor:pointer;display:flex;gap:8px;align-items:center}
 main{max-width:1100px;margin:auto;padding:24px 20px 50px;display:grid;gap:20px}
@@ -31,7 +31,8 @@ main{max-width:1100px;margin:auto;padding:24px 20px 50px;display:grid;gap:20px}
 .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
 .tank h2{margin:0;font-size:19px;display:inline}
 .chip{font-size:12px;font-weight:600;padding:2px 12px;border-radius:99px;border:1px solid #a7e8cb;background:var(--okbg);color:var(--ok);margin-left:8px;vertical-align:2px}
-.chip.low{background:#fdecec;border-color:#f5b5b5;color:var(--low)}
+.chip.warn{background:var(--warnbg);border-color:#fde68a;color:var(--warn)}
+.chip.low{background:var(--lowbg);border-color:#f5b5b5;color:var(--low)}
 .thead{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
 .sub{color:var(--mute);margin-top:2px}
 .seen{color:var(--mute);font-size:13px}.seen b{color:var(--sub)}
@@ -39,15 +40,18 @@ main{max-width:1100px;margin:auto;padding:24px 20px 50px;display:grid;gap:20px}
 .scale{position:relative;height:400px;width:40px;font-size:13px;color:var(--mute);text-align:right}
 .scale i{position:absolute;right:0;font-style:normal;transform:translateY(50%)}
 .tube{position:relative;width:150px;height:400px;border:2px solid var(--line);border-radius:18px;background:#f8fafc;overflow:hidden}
-.fill{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(to top,#a5f3fc,#38bdf8 45%,#2563eb 85%,#1d4ed8);background-size:100% 400px;background-position:bottom;transition:height .8s}
+.fill{position:absolute;left:0;right:0;bottom:0;transition:height .8s,background .4s}
 .alertline{position:absolute;left:0;right:0;border-top:2px dashed #f59e0b}
+.criticalline{position:absolute;left:0;right:0;border-top:2px dashed #dc2626}
 .alerttag{position:absolute;left:calc(100% + 8px);transform:translateY(50%);background:#fffbeb;border:1px solid #fde68a;color:#b45309;font-size:13px;font-weight:600;padding:2px 10px;border-radius:8px;white-space:nowrap}
+.criticaltag{position:absolute;left:calc(100% + 8px);transform:translateY(50%);background:#fdecec;border:1px solid #f5b5b5;color:#b91c1c;font-size:13px;font-weight:600;padding:2px 10px;border-radius:8px;white-space:nowrap}
 .gwrap{position:relative;display:inline-block}
 .big{text-align:center;margin-top:16px}
 .big b{font-size:38px}.big span{font-size:22px;color:#8ea0c0;font-weight:600}
 .big p{margin:2px 0 10px;color:var(--mute)}
 .badge{display:inline-block;font-weight:600;font-size:14px;padding:6px 16px;border-radius:99px;border:1px solid #a7e8cb;background:var(--okbg);color:var(--ok)}
-.badge.low{background:#fdecec;border-color:#f5b5b5;color:var(--low)}
+.badge.warn{background:var(--warnbg);border-color:#fde68a;color:var(--warn)}
+.badge.low{background:var(--lowbg);border-color:#f5b5b5;color:var(--low)}
 .hist{margin-top:26px}.hist h3{font-size:16px;margin:0 0 8px;color:#1e293b}
 .chartbox{position:relative;height:260px}
 .alerts h2{margin:0;font-size:20px}
@@ -57,17 +61,15 @@ main{max-width:1100px;margin:auto;padding:24px 20px 50px;display:grid;gap:20px}
 .row svg{color:#f59e0b;flex:none;width:24px;height:24px}
 .row .m{flex:1}.row .m b{display:block;font-weight:600}.row .m span{color:var(--mute);font-size:13px}
 .tag{background:#eef1f6;color:var(--sub);font-size:13px;font-weight:600;padding:4px 14px;border-radius:99px;white-space:nowrap}
-.x{border:0;background:none;color:var(--mute);cursor:pointer;padding:4px}.x:hover{color:var(--low)}
 .empty{color:var(--mute);padding:20px;text-align:center}
-#err{display:none;background:#fdecec;color:var(--low);padding:12px 16px;border-radius:12px}
+#err{display:none;background:var(--lowbg);color:var(--low);padding:12px 16px;border-radius:12px}
 </style>
 </head>
 <body>
 <header><div class="bar">
   <div class="brand"><div class="logo"><svg style="width:24px;height:24px" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 10.5a6 6 0 0 1-12 0C6 9.500 12 3 12 3z"/></svg></div>
     <div><b>AquaMonitor</b><span>Water Level System</span></div></div>
-  <div class="right"><span class="live" id="live">Live</span>
-    <button class="btn" id="refresh"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Refresh</button></div>
+  <div class="right"><span class="live" id="live">Live</span></div>
 </div></header>
 
 <main>
@@ -88,18 +90,25 @@ const TANKS = [   // "name" must match TANK_NAME in the Arduino code for each de
   {name: "Suction Tank", sub: "Main Reservoir", color: "#2563eb", bg: "#eff5ff"},
   {name: "Tank 2", sub: "Backup Tank", color: "#0ea5b7", bg: "#e6fbfd"}
 ];
-const CAPACITY = 3.6;  // m
-const ALERT = 1.8;     // m
-const DAYS = 14;       // data kept
+const CAPACITY = 3.6;   // m
+const ALERT = 1.8;      // m — below this: warning (yellow)
+const CRITICAL = 1.0;   // m — below this: critical (red)
+const DAYS = 10;        // data kept
 const OFFLINE_MIN = 60;
 // ================================
+
+// Fill gradients per state
+const FILL = {
+  safe: "linear-gradient(to top,#a5f3fc,#38bdf8 45%,#2563eb 85%,#1d4ed8)",
+  warn: "linear-gradient(to top,#fef3c7,#fbbf24 45%,#d97706 85%,#b45309)",
+  low:  "linear-gradient(to top,#fecaca,#f87171 45%,#dc2626 85%,#b91c1c)"
+};
 
 const I = {
   drop: '<svg viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 10.5a6 6 0 0 1-12 0C6 9.5 12 3 12 3z"/></svg>',
   pulse: '<svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
   wifi: '<svg viewBox="0 0 24 24"><path d="M2 9a15 15 0 0 1 20 0M5 12.500a10 10 0 0 1 14 0M8.500 16a5 5 0 0 1 7 0M12 20h.01"/></svg>',
-  warn: '<svg viewBox="0 0 24 24"><path d="M10.300 3.900L1.800 18a2 2 0 0 0 1.700 3h17a2 2 0 0 0 1.700-3L13.700 3.900a2 2 0 0 0-3.400 0zM12 9v4M12 17h.01"/></svg>',
-  x: '<svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>'
+  warn: '<svg viewBox="0 0 24 24"><path d="M10.300 3.900L1.800 18a2 2 0 0 0 1.700 3h17a2 2 0 0 0 1.700-3L13.700 3.900a2 2 0 0 0-3.400 0zM12 9v4M12 17h.01"/></svg>'
 };
 const DAY = 864e5;
 let readings = [], alerts = [], charts = {};
@@ -116,6 +125,15 @@ function ago(ts) {
   return d + (d === 1 ? " day ago" : " days ago");
 }
 
+// safe (>= ALERT) / warn (CRITICAL–ALERT) / low (< CRITICAL)
+function levelState(lvl) {
+  if (lvl < CRITICAL) return "low";
+  if (lvl < ALERT) return "warn";
+  return "safe";
+}
+const STATE_LABEL = {safe: "safe", warn: "warning", low: "critical"};
+const BADGE_TEXT = {safe: "✓ Safe Level", warn: "⚠ Warning Level", low: "⛔ Critical Level"};
+
 async function fetchList(path, cutoff) {
   const r = await fetch(`${DB}/${path}.json?orderBy="ts"&startAt=${cutoff}`);
   if (!r.ok) throw new Error(path + " " + r.status);
@@ -123,7 +141,7 @@ async function fetchList(path, cutoff) {
   return Object.entries(o).map(([k, v]) => ({...v, key: k}));
 }
 
-// Remove anything older than 14 days (up to 500 items per refresh)
+// Remove anything older than 10 days (up to 500 items per refresh)
 async function cleanup(path, cutoff) {
   try {
     const old = await (await fetch(`${DB}/${path}.json?orderBy="ts"&endAt=${cutoff}&limitToFirst=500`)).json();
@@ -156,7 +174,8 @@ function render() {
   TANKS.forEach((t, i) => {
     const r = last(t.name), online = r && Date.now() - r.ts < OFFLINE_MIN * 60000;
     const lvl = r ? r.level : null, pct = r ? Math.min(100, Math.round(lvl / CAPACITY * 100)) : null;
-    const n = alerts.filter(a => a.tank === t.name).length, low = r && lvl < ALERT;
+    const n = alerts.filter(a => a.tank === t.name).length;
+    const state = r ? levelState(lvl) : "safe";
     stats += `<div class="card stat"><div><div class="l">${t.name} Level</div><div class="v">${r ? lvl.toFixed(2) : "--"} <small>m</small></div></div><div class="ic" style="background:${t.bg};color:${t.color}">${I.drop}</div></div>`;
     stats += `<div class="card stat"><div><div class="l">${t.name} Fill</div><div class="v">${r ? pct : "--"} <small>%</small></div></div><div class="ic" style="background:${t.bg};color:${t.color}">${I.pulse}</div></div>`;
     stats += `<div class="card stat"><div><div class="l">${t.name} Sensor</div><div class="v">${r ? (online ? "Online" : "Offline") : "No data"}</div>${r ? `<div class="t">${ago(r.ts)}</div>` : ""}</div><div class="ic" style="background:${online ? "#e8faf2" : "#fdecec"};color:${online ? "#10b981" : "#ef4444"}">${I.wifi}</div></div>`;
@@ -164,10 +183,10 @@ function render() {
 
     const H = 400, fillH = r ? Math.min(lvl, 3.5) / 3.5 * H : 0;
     let ticks = ""; for (let v = 0; v <= 3.5; v += .5) ticks += `<i style="bottom:${v / 3.5 * 100}%">${v.toFixed(1)}m</i>`;
-    tanks += `<section class="card tank"><div class="thead"><div><h2>${t.name} — Tank Status</h2><span class="chip ${low ? "low" : ""}">${low ? "low" : "safe"}</span><div class="sub">${t.sub}</div></div>
+    tanks += `<section class="card tank"><div class="thead"><div><h2>${t.name} — Tank Status</h2><span class="chip ${state === "safe" ? "" : state}">${STATE_LABEL[state]}</span><div class="sub">${t.sub}</div></div>
       <div class="seen">${r ? `<b style="color:${online ? "#059669" : "#64748b"}">${online ? "Online" : "Offline"}</b> · ${ago(r.ts)} · ${fmt(r.ts)}` : "Waiting for first reading"}</div></div>
-      <div class="gauge"><div class="scale">${ticks}</div><div class="gwrap"><div class="tube"><div class="fill" style="height:${fillH}px"></div><div class="alertline" style="bottom:${ALERT / 3.5 * 100}%"></div></div><span class="alerttag" style="bottom:${ALERT / 3.5 * 100}%">Alert: ${ALERT}m</span></div></div>
-      <div class="big"><b>${r ? lvl.toFixed(2) : "--"}</b> <span>m</span><p>of ${CAPACITY}m capacity</p>${r ? `<span class="badge ${low ? "low" : ""}">${low ? "Low Level" : "✓ Safe Level"}</span>` : ""}</div>
+      <div class="gauge"><div class="scale">${ticks}</div><div class="gwrap"><div class="tube"><div class="fill" style="height:${fillH}px;background-image:${FILL[state]}"></div><div class="alertline" style="bottom:${ALERT / 3.5 * 100}%"></div><div class="criticalline" style="bottom:${CRITICAL / 3.5 * 100}%"></div></div><span class="alerttag" style="bottom:${ALERT / 3.5 * 100}%">Warn: ${ALERT}m</span><span class="criticaltag" style="bottom:${CRITICAL / 3.5 * 100}%">Critical: ${CRITICAL}m</span></div></div>
+      <div class="big"><b>${r ? lvl.toFixed(2) : "--"}</b> <span>m</span><p>of ${CAPACITY}m capacity</p>${r ? `<span class="badge ${state === "safe" ? "" : state}">${BADGE_TEXT[state]}</span>` : ""}</div>
       <div class="hist"><h3>Level History</h3><div class="chartbox"><canvas id="c${i}"></canvas></div></div></section>`;
   });
   document.getElementById("stats").innerHTML = stats;
@@ -185,7 +204,8 @@ function drawChart(t, i) {
     type: "line",
     data: {datasets: [
       {label: "Level", data, borderColor: t.color, backgroundColor: g, fill: true, borderWidth: 2.5, pointRadius: 0, tension: .35},
-      {label: "Alert Level (" + ALERT + "m)", data: [{x: from, y: ALERT}, {x: Date.now(), y: ALERT}], borderColor: "#f59e0b", borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0}
+      {label: "Warning Level (" + ALERT + "m)", data: [{x: from, y: ALERT}, {x: Date.now(), y: ALERT}], borderColor: "#f59e0b", borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0},
+      {label: "Critical Level (" + CRITICAL + "m)", data: [{x: from, y: CRITICAL}, {x: Date.now(), y: CRITICAL}], borderColor: "#dc2626", borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0}
     ]},
     options: {
       responsive: true, maintainAspectRatio: false, animation: false, interaction: {mode: "nearest", axis: "x", intersect: false},
@@ -200,17 +220,9 @@ function drawChart(t, i) {
 
 function drawAlerts() {
   const el = document.getElementById("alerts");
-  if (!alerts.length) { el.innerHTML = '<div class="empty">No alerts in the last 14 days.</div>'; return; }
-  el.innerHTML = alerts.map(a => `<div class="row">${I.warn}<div class="m"><b>WARNING: Water level at ${Number(a.level).toFixed(2)}m — below safe level of ${ALERT}m</b><span>${ago(a.ts)} · ${fmt(a.ts)} · Level: ${Number(a.level).toFixed(2)}m</span></div><span class="tag">${a.tank}</span><button class="x" data-k="${a.key}" title="Dismiss">${I.x}</button></div>`).join("");
+  if (!alerts.length) { el.innerHTML = '<div class="empty">No alerts in the last 10 days.</div>'; return; }
+  el.innerHTML = alerts.map(a => `<div class="row">${I.warn}<div class="m"><b>WARNING: Water level at ${Number(a.level).toFixed(2)}m — below safe level of ${ALERT}m</b><span>${ago(a.ts)} · ${fmt(a.ts)} · Level: ${Number(a.level).toFixed(2)}m</span></div><span class="tag">${a.tank}</span></div>`).join("");
 }
-
-document.getElementById("alerts").onclick = async e => {
-  const b = e.target.closest(".x"); if (!b) return;
-  const k = b.dataset.k;
-  alerts = alerts.filter(a => a.key !== k); render();
-  try { await fetch(`${DB}/alerts/${k}.json`, {method: "DELETE"}); } catch (e) {}
-};
-document.getElementById("refresh").onclick = load;
 
 load();
 setInterval(load, 60000);
